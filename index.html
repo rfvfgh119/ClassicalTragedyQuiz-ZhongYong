@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王安石《傷仲永》智慧闖關挑戰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .option-btn:hover {
+            transform: scale(1.03);
+        }
+        .option-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #22c55e !important; /* green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* green-600 */
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* red-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div id="quiz-container" class="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-2xl p-6 md:p-10 transition-all duration-500">
+        
+        <div id="welcome-screen">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">王安石《傷仲永》智慧闖關挑戰</h1>
+            <p class="text-center text-gray-600 mb-8">一位天才少年的殞落，是對天賦與努力最深刻的叩問。準備好接受挑戰了嗎？</p>
+            <button onclick="startQuiz()" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                開始挑戰！
+            </button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="level-title" class="text-2xl font-bold text-blue-700"></h2>
+                <div id="question-counter" class="text-lg font-semibold text-gray-600"></div>
+            </div>
+            <div id="question-text" class="text-xl md:text-2xl font-semibold text-gray-800 mb-8 min-h-[100px]"></div>
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+            <div class="mt-8 text-center">
+                <button id="next-question-btn" onclick="nextQuestion()" class="hidden bg-gray-800 text-white font-bold py-2 px-8 rounded-lg hover:bg-gray-900 transition-colors">
+                    下一題
+                </button>
+            </div>
+        </div>
+
+        <div id="level-result-screen" class="hidden text-center">
+            <h2 id="level-result-title" class="text-3xl font-bold text-gray-800 mb-4"></h2>
+            <p id="level-result-comment" class="text-2xl font-bold mb-2"></p>
+            <p id="level-result-score" class="text-xl text-gray-600 mb-8"></p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <button id="retry-btn" onclick="retryMissedQuestions()" class="bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-transform transform hover:scale-105">
+                    錯題重練
+                </button>
+                <button id="next-level-btn" onclick="startNextLevel()" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-transform transform hover:scale-105">
+                    繼續挑戰下一關
+                </button>
+            </div>
+        </div>
+
+        <div id="final-result-screen" class="hidden text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">恭喜完成所有挑戰！</h2>
+            <div id="final-analysis" class="text-left bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3">總檢討與學習建議</h3>
+                <p class="mb-2"><strong>總分：</strong><span id="total-score" class="font-bold text-green-600"></span> / 30</p>
+                <div class="mb-4">
+                    <h4 class="font-bold text-lg text-gray-700">學習優勢：</h4>
+                    <p id="learning-strengths" class="text-gray-600"></p>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-bold text-lg text-gray-700">待加強領域：</h4>
+                    <p id="areas-for-improvement" class="text-gray-600"></p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg text-gray-700">個性化學習建議：</h4>
+                    <p id="personalized-advice" class="text-gray-600"></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+const questions = [
+    // --- 第一關：基礎理解 ---
+    {
+        level: 1,
+        [cite_start]question: '故事的主角，被稱為「天才小子」的人是誰？ [cite: 1]',
+        options: ['王安石', '方仲永', '匡衡', '甘羅'],
+        answer: '方仲永'
+    },
+    {
+        level: 1,
+        [cite_start]question: '方仲永在幾歲時展現出「指物作詩」的驚人天賦？ [cite: 1]',
+        options: ['三歲', '五歲', '十歲', '十二歲'],
+        answer: '五歲'
+    },
+    {
+        level: 1,
+        [cite_start]question: '方仲永的父親發現他的才能後，主要帶他去做什麼？ [cite: 1]',
+        options: ['送他去最好的書院讀書', '為他尋找名師指導', '帶他四處表演作詩賺錢', '讓他專心在家練習書法'],
+        answer: '帶他四處表演作詩賺錢'
+    },
+    {
+        level: 1,
+        [cite_start]question: '《傷仲永》這篇文章的作者是誰？ [cite: 1]',
+        options: ['蘇軾', '歐陽修', '王安石', '方仲永的父親'],
+        answer: '王安石'
+    },
+    {
+        level: 1,
+        [cite_start]question: '方仲永到了十二三歲時，作的詩被鄉親們形容像什麼？ [cite: 1]',
+        options: ['像詩仙李白的詩', '像大學生的報告', '像幼稚園的作業', '像皇帝的詔書'],
+        answer: '像幼稚園的作業'
+    },
+    {
+        level: 1,
+        [cite_start]question: '作者王安石是在幾歲時，於何處聽到方仲永的故事？ [cite: 1]',
+        options: ['18歲，在京城', '30歲，在自己的家鄉', '23歲，在舅舅家', '40歲，在皇宮裡'],
+        answer: '23歲，在舅舅家'
+    },
+    {
+        level: 1,
+        [cite_start]question: '當方仲永的詩才退步時，他父親找了什麼藉口？ [cite: 2]',
+        options: ['可能是天氣不好', '是他最近太累了', '是鄉親們出的題目太難', '是他沒有好的筆墨紙硯'],
+        answer: '可能是天氣不好'
+    },
+    {
+        level: 1,
+        [cite_start]question: '故事中提到，方仲永的父親帶著他，「詩一首」能賺多少錢？ [cite: 1]',
+        options: ['一文錢', '十文錢', '一百文錢', '一兩黃金'],
+        answer: '十文錢'
+    },
+    {
+        level: 1,
+        [cite_start]question: '方仲永最終的結局是什麼？ [cite: 2]',
+        options: ['成為一代大詩人', '進京考上狀元', '變成跟普通人一樣', '開了一家書院教書'],
+        answer: '變成跟普通人一樣'
+    },
+    {
+        level: 1,
+        [cite_start]question: '在方仲永十歲時，他寫出了「太陽圓，月亮彎」這樣的詩，這代表了什麼？ [cite: 1]',
+        options: ['他的詩風變得樸實自然', '他的文采已經嚴重退步', '他開始觀察天文現象', '他想家了'],
+        answer: '他的文采已經嚴重退步'
+    },
+    // --- 第二關：深入分析 ---
+    {
+        level: 2,
+        [cite_start]question: '王安石認為方仲永天賦消失最主要的原因是什麼？ [cite: 1]',
+        options: ['他天生就不夠聰明', '他長大後變得懶惰', '他沒有接受後天的學習與教育', '鄉親們不再付錢給他'],
+        answer: '他沒有接受後天的學習與教育'
+    },
+    {
+        level: 2,
+        [cite_start]question: '王安石用「把金子換糖吃」來比喻誰的行為？ [cite: 1]',
+        options: ['方仲永本人', '方仲永的父親', '圍觀的鄉親', '作者自己'],
+        answer: '方仲永的父親'
+    },
+    {
+        level: 2,
+        [cite_start]question: '故事中提到匡衡「鑿牆借光」和孫康「用雪反射月光」讀書，是為了說明什麼道理？ [cite: 1]',
+        options: ['古代讀書人生活很貧困', '後天努力學習比天賦更重要', '晚上讀書對眼睛不好', '他們是方仲永的好朋友'],
+        answer: '後天努力學習比天賦更重要'
+    },
+    {
+        level: 2,
+        [cite_start]question: '王安石說「天才不學習，比凡人還慘！」，這句話的涵義是什麼？ [cite: 1]',
+        options: ['天才本來就應該比凡人更努力', '有天賦卻不努力，結果會更令人惋惜和失望', '凡人不需要學習也能成功', '天才和凡人沒有區別'],
+        answer: '有天賦卻不努力，結果會更令人惋惜和失望'
+    },
+    {
+        level: 2,
+        [cite_start]question: '方仲永父親的行為，反映出他是一個怎麼樣的人？ [cite: 1, 2]',
+        options: ['深謀遠慮，為兒子著想', '淡泊名利，與世無爭', '目光短淺，貪圖眼前小利', '嚴格要求，是個嚴父'],
+        answer: '目光短淺，貪圖眼前小利'
+    },
+    {
+        level: 2,
+        [cite_start]question: '故事中多次將方仲永的父親稱為「搞亂王」，這是因為他做了什麼？ [cite: 2]',
+        options: ['把家裡弄得很亂', '擾亂了市場秩序', '毀掉了兒子的天賦與未來', '經常和鄉親吵架'],
+        answer: '毀掉了兒子的天賦與未來'
+    },
+    {
+        level: 2,
+        [cite_start]question: '王安石提到甘羅和王勃這些歷史上的天才，是想表達什麼觀點？ [cite: 1]',
+        options: ['證明所有天才的結局都不好', '說明即使是天才，也需要持續努力才能有所成就', '讚揚他們年輕時的成就', '感嘆自己不如他們'],
+        answer: '說明即使是天才，也需要持續努力才能有所成就'
+    },
+    {
+        level: 2,
+        [cite_start]question: '王安石說「學習是翅膀，方仲永爹把翅膀剪了！」這句話使用了什麼修辭手法？ [cite: 1, 3]',
+        options: ['誇飾', '設問', '譬喻（比喻）', '擬人'],
+        answer: '譬喻（比喻）'
+    },
+    {
+        level: 2,
+        [cite_start]question: '文章標題《傷仲永》中的「傷」字，最能體現作者的何種情感？ [cite: 1]',
+        options: ['憤怒和不滿', '悲傷和惋惜', '嫉妒和羨慕', '快樂和喜悅'],
+        answer: '悲傷和惋惜'
+    },
+    {
+        level: 2,
+        [cite_start]question: '王安石強調「經世致用」，這代表他認為學習的最終目的是什麼？ [cite: 1, 3]',
+        options: ['為了賺錢', '為了應用於社會，解決實際問題', '為了個人名譽', '為了考試得高分'],
+        answer: '為了應用於社會，解決實際問題'
+    },
+    // --- 第三關：深層理解與應用 ---
+    {
+        level: 3,
+        [cite_start]question: '王安石用「天賦是禮物，努力是引擎」這個比喻，最想強調的核心觀念是什麼？ [cite: 1]',
+        options: ['禮物比引擎更貴重', '天賦是成功的唯一條件', '努力是驅動天賦發揮作用的關鍵動力', '收到禮物後就不需要努力了'],
+        answer: '努力是驅動天賦發揮作用的關鍵動力'
+    },
+    {
+        level: 3,
+        question: '從方仲永的故事中，我們可以得到關於「家庭教育」最重要的啟示是什麼？',
+        options: ['父母應該讓孩子自由發展', '父母的眼界和選擇，深刻影響孩子的未來', '應該讓孩子儘早賺錢養家', '孩子的天賦比後天教育更重要'],
+        answer: '父母的眼界和選擇，深刻影響孩子的未來'
+    },
+    {
+        level: 3,
+        [cite_start]question: '故事的結局「泯然眾人矣」，這個詞語用來形容什麼樣的狀況？ [cite: 2]',
+        options: ['一個人變得非常有名', '指原本有才華的人，最終變得平庸', '一個人過著與世隔絕的生活', '一個人達到了人生的巔峰'],
+        answer: '指原本有才華的人，最終變得平庸'
+    },
+    {
+        level: 3,
+        question: '如果你的同學在某個科目上很有天賦，但不喜歡練習，你會用方仲永的故事如何勸告他？',
+        options: ['「你這麼聰明，不練習也沒關係。」', '「你看方仲永，有天賦不努力，最後也沒用啊！」', '「我們一起去玩吧，練習太無聊了。」', '「老師太嚴格了，我們不要理他。」'],
+        answer: '「你看方仲永，有天賦不努力，最後也沒用啊！」'
+    },
+    {
+        level: 3,
+        [cite_start]question: '王安石寫這篇文章的主要目的，除了感嘆方仲永的遭遇外，更重要的是什麼？ [cite: 1, 2]',
+        options: ['炫耀自己的文采', '批評方仲永的父親', '警示世人，強調後天學習的重要性', '記錄北宋的奇聞軼事'],
+        answer: '警示世人，強調後天學習的重要性'
+    },
+    {
+        level: 3,
+        [cite_start]question: '故事中反覆將人生比喻成「遊戲」或「比賽」，這種說法是為了強調什麼？ [cite: 1, 3]',
+        options: ['人生充滿樂趣，應該及時行樂', '人生需要不斷努力升級，否則就會被淘汰', '人生是一場騙局', '比賽的勝負並不重要'],
+        answer: '人生需要不斷努力升級，否則就會被淘汰'
+    },
+    {
+        level: 3,
+        [cite_start]question: '方仲永的悲劇，最大的「反派」是誰？ [cite: 2]',
+        options: ['嘲笑他的鄉親們', '他自己不夠努力', '他父親短視近利的教育方式', '沒有發現他的縣令'],
+        answer: '他父親短視近利的教育方式'
+    },
+    {
+        level: 3,
+        [cite_start]question: '王安石說「天變不足畏」，下一句「懶惰才可怕」，這句話體現了他什麼樣的人生觀？ [cite: 2]',
+        options: ['聽天由命，順其自然', '積極進取，認為人的努力可以戰勝困難', '害怕改變，墨守成規', '對未來感到悲觀'],
+        answer: '積極進取，認為人的努力可以戰勝困難'
+    },
+    {
+        level: 3,
+        question: '這個故事對現代社會中那些「童星」或年少成名的人有何警示意義？',
+        options: ['應該趁年輕多賺錢', '成名後就可以停止學習', '除了發展才藝，更要重視文化知識的持續學習', '他們應該完全脫離演藝圈'],
+        answer: '除了發展才藝，更要重視文化知識的持續學習'
+    },
+    {
+        level: 3,
+        question: '「小時了了，大未必佳」這句成語，最適合用來總結誰的人生？',
+        options: ['王安石', '匡衡', '方仲永', '方仲永的父親'],
+        answer: '方仲永'
+    }
+];
+
+let currentLevel = 1;
+let currentQuestionIndex = 0;
+let levelScore = 0;
+let totalScore = 0;
+let levelQuestions = [];
+let missedQuestionsInLevel = [];
+let isRetryMode = false;
+
+const welcomeScreen = document.getElementById('welcome-screen');
+const quizScreen = document.getElementById('quiz-screen');
+const levelResultScreen = document.getElementById('level-result-screen');
+const finalResultScreen = document.getElementById('final-result-screen');
+
+const levelTitle = document.getElementById('level-title');
+const questionCounter = document.getElementById('question-counter');
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const nextQuestionBtn = document.getElementById('next-question-btn');
+
+function startQuiz() {
+    welcomeScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    loadLevel(1);
+}
+
+function loadLevel(level) {
+    currentLevel = level;
+    levelQuestions = questions.filter(q => q.level === level);
+    currentQuestionIndex = 0;
+    levelScore = 0;
+    missedQuestionsInLevel = [];
+    isRetryMode = false;
+    
+    levelTitle.textContent = `第 ${currentLevel} 關：${getLevelName(currentLevel)}`;
+    displayQuestion();
+}
+
+function getLevelName(level) {
+    if (level === 1) return '基礎理解';
+    if (level === 2) return '深入分析';
+    if (level === 3) return '深層理解與應用';
+    return '錯題重練';
+}
+
+function displayQuestion() {
+    nextQuestionBtn.classList.add('hidden');
+    const question = levelQuestions[currentQuestionIndex];
+    questionText.innerHTML = question.question;
+    questionCounter.textContent = `第 ${currentQuestionIndex + 1} / ${levelQuestions.length} 題`;
+    optionsContainer.innerHTML = '';
+
+    question.options.forEach(option => {
+        const button = document.createElement('button');
+        button.innerHTML = option;
+        button.classList.add('option-btn', 'w-full', 'p-4', 'border-2', 'rounded-lg', 'text-left', 'transition-all', 'duration-300', 'bg-gray-50', 'border-gray-300', 'hover:bg-blue-100', 'hover:border-blue-400');
+        button.onclick = () => selectAnswer(button, option, question.answer);
+        optionsContainer.appendChild(button);
+    });
+}
+
+function selectAnswer(button, selectedOption, correctAnswer) {
+    const buttons = optionsContainer.querySelectorAll('button');
+    let correct = false;
+
+    if (selectedOption === correctAnswer) {
+        levelScore++;
+        correct = true;
+    } else {
+        missedQuestionsInLevel.push(levelQuestions[currentQuestionIndex]);
+    }
+
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.innerHTML === correctAnswer) {
+            btn.classList.add('correct');
+        } else if (btn === button && !correct) {
+            btn.classList.add('incorrect');
+        }
+    });
+
+    nextQuestionBtn.classList.remove('hidden');
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < levelQuestions.length) {
+        displayQuestion();
+    } else {
+        showLevelResult();
+    }
+}
+
+function showLevelResult() {
+    quizScreen.classList.add('hidden');
+    levelResultScreen.classList.remove('hidden');
+
+    const score = levelScore;
+    const total = levelQuestions.length;
+    const percentage = (score / total) * 100;
+    
+    document.getElementById('level-result-title').textContent = isRetryMode ? '重練結果' : `第 ${currentLevel} 關完成！`;
+    document.getElementById('level-result-score').textContent = `本關得分：${score} / ${total}`;
+
+    const commentEl = document.getElementById('level-result-comment');
+    if (percentage === 100) {
+        commentEl.textContent = '太棒了！完全正確！';
+        commentEl.className = 'text-2xl font-bold mb-2 text-green-500';
+    } else if (percentage >= 70) {
+        commentEl.textContent = '很不錯！繼續保持！';
+        commentEl.className = 'text-2xl font-bold mb-2 text-blue-500';
+    } else {
+        commentEl.textContent = '再努力！別灰心！';
+        commentEl.className = 'text-2xl font-bold mb-2 text-yellow-500';
+    }
+
+    if (!isRetryMode) {
+        totalScore += score;
+    }
+    
+    const retryBtn = document.getElementById('retry-btn');
+    if (missedQuestionsInLevel.length > 0 && !isRetryMode) {
+        retryBtn.classList.remove('hidden');
+    } else {
+        retryBtn.classList.add('hidden');
+    }
+
+    const nextLevelBtn = document.getElementById('next-level-btn');
+    if (currentLevel < 3) {
+        nextLevelBtn.textContent = '繼續挑戰下一關';
+        nextLevelBtn.classList.remove('hidden');
+    } else {
+        nextLevelBtn.textContent = '查看總結報告';
+        nextLevelBtn.classList.remove('hidden');
+    }
+}
+
+function retryMissedQuestions() {
+    levelResultScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+
+    totalScore -= missedQuestionsInLevel.length; // Subtract score for questions that were initially wrong
+    levelQuestions = [...missedQuestionsInLevel];
+    currentQuestionIndex = 0;
+    levelScore = 0; // Reset score for the retry session
+    missedQuestionsInLevel = [];
+    isRetryMode = true;
+
+    levelTitle.textContent = '錯題重練';
+    displayQuestion();
+}
+
+function startNextLevel() {
+    levelResultScreen.classList.add('hidden');
+    if (isRetryMode) {
+        totalScore += levelScore; // Add score from retrying missed questions
+    }
+    
+    if (currentLevel < 3) {
+        loadLevel(currentLevel + 1);
+        quizScreen.classList.remove('hidden');
+    } else {
+        showFinalAnalysis();
+    }
+}
+
+function showFinalAnalysis() {
+    finalResultScreen.classList.remove('hidden');
+    document.getElementById('total-score').textContent = totalScore;
+    
+    const performance = totalScore / 30;
+    let strengths = '';
+    let weaknesses = '';
+    let advice = '';
+
+    if (performance >= 0.9) {
+        strengths = '您對故事的事實、人物動機和核心寓意都有極為深刻的理解。您完全掌握了「天賦」與「後天努力」之間的辯證關係。';
+        weaknesses = '表現近乎完美，無明顯弱點！';
+        advice = '恭喜您，您已深刻領會《傷仲永》的警世之言！建議您可以將此智慧應用於觀察生活，思考如何幫助身邊有天賦的朋友持續進步。';
+    } else if (performance >= 0.7) {
+        strengths = '您對故事的主要情節掌握得很好，並能準確分析方仲永悲劇的主要原因。';
+        weaknesses = '對於一些比喻的深層含義（如「經世致用」）以及將故事寓意應用於現代情境的題目，可能需要多加思考。';
+        advice = '表現非常出色！建議您可以多思考王安石寫作本文的時代背景，以及他希望透過此文達成的社會警示作用，這會讓您有更宏觀的理解。';
+    } else if (performance >= 0.5) {
+        strengths = '您對故事的基本人物和事件發展有不錯的記憶。';
+        weaknesses = '在分析父親的角色、理解作者的寫作意圖，以及掌握文章的核心主旨方面需要加強。建議多留意第二、三關的錯題。';
+        advice = '您已具備良好的基礎！建議重新回顧故事，特別留意王安石是如何評論仲永父親的行為，以及他如何用不同的比喻來強調「學習」的重要性。';
+    } else {
+        strengths = '您勇敢地完成了所有挑戰，這是通往智慧的第一步！';
+        weaknesses = '對故事的細節、人物動機和核心思想的掌握度較低，可能需要更深入地理解故事。';
+        advice = '別灰心，學習的過程比結果更重要！強烈建議您重新聽一次故事，一邊聽一邊思考：「為什麼仲永會失敗？」、「如果你是他的父親，你會怎麼做？」。帶著問題學習，效果會更好！加油！';
+    }
+
+    document.getElementById('learning-strengths').textContent = strengths;
+    document.getElementById('areas-for-improvement').textContent = weaknesses;
+    document.getElementById('personalized-advice').textContent = advice;
+}
+
+</script>
+</body>
+</html>
